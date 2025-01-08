@@ -1,0 +1,47 @@
+/* src/components/dashboard/bottomRow/bottomRow.css */
+
+.bottom-row-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between; /* gear cluster on left, menu center, charging right */
+  background-color: #2b2b2b;
+  height: 70px;
+  padding: 0 2rem;
+}
+
+.left-button-group {
+  display: flex;
+  gap: 1rem;
+}
+
+.bottom-button {
+  background-color: #3a3a3a;
+  border: 1px solid #555;
+  color: #ccc;
+  width: 50px;  /* approximate square size from screenshot */
+  height: 50px;
+  border-radius: 8px; /* or 4px for sharper corners */
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  position: relative;
+}
+
+.bottom-button:hover {
+  background-color: #4c4c4c;
+  color: #fff;
+}
+
+/* Charging Button on far right might differ in icon or color when active */
+.charging-active {
+  background-color: #ff2c2c;
+  color: #fff;
+}
+
+/* Optional if you have an icon inside the button */
+.bottom-button svg {
+  font-size: 1.2rem;
+}

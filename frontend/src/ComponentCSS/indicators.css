@@ -1,0 +1,24 @@
+/* src/components/dashboard/indicators/indicators.css */
+
+.indicator-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #777; /* default inactive color */
+  transition: color 0.3s;
+}
+
+.indicator-wrapper.active {
+  color: #ff3838; /* bright red color for active state */
+}
+
+.indicator-icon {
+  font-size: 1.8rem; /* bigger icon to match screenshot */
+}
+
+.indicator-label {
+  font-size: 0.7rem;
+  margin-top: 2px;
+  text-transform: uppercase;
+}
