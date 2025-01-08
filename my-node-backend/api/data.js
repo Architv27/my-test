@@ -1,6 +1,7 @@
 // backend/api/data.js
 
 import { db } from '../firebaseAdmin.js'; // Adjust the path
+import crypto from 'crypto';
 
 export default async function handler(req, res) {
   if (req.method === 'GET') {
@@ -11,6 +12,19 @@ export default async function handler(req, res) {
       }
 
       const data = vehicleDoc.data();
+
+      // Create a hash of the data for ETag
+      const hash = crypto.createHash('md5').update(JSON.stringify(data)).digest('hex');
+
+      // Check for If-None-Match header
+      const ifNoneMatch = req.headers['if-none-match'];
+
+      if (ifNoneMatch === hash) {
+        return res.status(304).end(); // Not Modified
+      }
+
+      // Set ETag header
+      res.setHeader('ETag', hash);
 
       // Select only necessary fields
       const responseData = {
