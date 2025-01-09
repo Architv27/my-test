@@ -37,7 +37,7 @@ app.post("/motor/speed", async (req, res) => {
     const vehicleDocRef = db.collection("vehicles").doc("myVehicle");
 
     // Update motorSpeedSetting
-    await vehicleDocRef.update({ motorSpeedSetting: motorSpeed });
+    await vehicleDocRef.update({ motorSpeedSetting: motorSpeed, parkingBrake: motorSpeed === 0 });
 
     // Retrieve latest vehicle data to compute relational changes
     const doc = await vehicleDocRef.get();
@@ -74,7 +74,6 @@ app.post("/motor/speed", async (req, res) => {
 app.post("/battery/charging", async (req, res) => {
   try {
     const { isCharging } = req.body;
-
     if (typeof isCharging !== "boolean") {
       return res.status(400).json({ error: "isCharging must be a boolean" });
     }
@@ -90,7 +89,8 @@ app.post("/battery/charging", async (req, res) => {
         motorRPM: 0,
         motorSpeedSetting: 0,  // Reset motor speed setting
         powerLevel: -1000,      // Set a negative power level for charging
-        parkingBrake: true      // Example: engage parking brake when charging
+        parkingBrake: true,      // Example: engage parking brake when charging
+        isCharging:isCharging
       });
     }
 

@@ -59,10 +59,10 @@ function BatteryPercentDisplay({ percent, isCharging }) {
   }
 
   return (
-    <div className="info-block">
-      <BatteryIcon style={{ marginRight: "8px", fontSize: "4rem" }} />
+    <div className="info-block" style={{paddingLeft:80}}>
+      <BatteryIcon style={{ fontSize: "4rem" }} />
       <div className="info-value">
-        {percent}%
+        {parseInt(percent)}%
       </div>
     </div>
   );

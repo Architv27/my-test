@@ -5,16 +5,16 @@ import { doc, getDoc, updateDoc, setDoc } from "firebase-admin/firestore";
 
 // Utility constants & thresholds
 const BATTERY_LOW_THRESHOLD = 20;
-const MOTOR_HIGH_RPM = 3000;
+const MOTOR_HIGH_RPM = 800;
 const CHARGE_RATE = 1;
 const DISCHARGE_RATE = 0.5;
 const MOTOR_TEMP_RATE = 1;
 const MOTOR_SPEED_RPM_MAP = {
   0: 0,
-  1: 1000,
-  2: 2000,
-  3: 3000,
-  4: 4000
+  1: 200,
+  2: 400,
+  3: 600,
+  4: 800
 };
 const POWER_CONSUMPTION_MAP = {
   0: 0,
@@ -23,7 +23,7 @@ const POWER_CONSUMPTION_MAP = {
   3: 60,
   4: 80
 };
-const CHARGE_POWER_LEVEL = -10; // Negative => charging input
+const CHARGE_POWER_LEVEL = -100; // Negative => charging input
 
 export default async function handler(req, res) {
   if (req.method === "POST") {

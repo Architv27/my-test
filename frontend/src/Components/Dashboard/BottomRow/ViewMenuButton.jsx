@@ -4,10 +4,7 @@ import { CgMenuGridR } from "react-icons/cg";
 
 function MotorButton() {
   return (
-    <CgMenuGridR style={{fontSize:"4rem"}} />
-    // <button className="bottom-button" disabled>
-    //   Motor
-    // </button>
+    <CgMenuGridR style={{fontSize:"4rem", paddingRight:"110px"}} />
   );
 }
 

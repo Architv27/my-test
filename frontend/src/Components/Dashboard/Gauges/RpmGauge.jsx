@@ -3,48 +3,53 @@ import React from "react";
 import "../../../ComponentCSS/gauges.css";
 
 /**
- * rpm: number (0 -> max)
- *   e.g. 0 -> 4000 or 0 -> 800 depending on your scale
+ * rpm: number, range 0..800
+ * This gauge displays from 0 RPM (needle at -90°) to 800 RPM (needle at +90°).
  */
 function RpmGauge({ rpm = 0 }) {
-  const maxRpm = 800; // Update to 800 as per requirement
-  const clamped = Math.min(maxRpm, Math.max(0, rpm));
-  
-  // Map 0->800 to -90°->+90° range (bottom left to bottom right)
-  const rotation = ((clamped / maxRpm) * 180) - 90;
+  const maxRpm = 800;
+  const clampedRpm = Math.min(Math.max(rpm, 0), maxRpm);
 
-  // Define tick marks for the gauge at regular intervals
-  const ticks = [0, 200, 400, 600, 800];
+  // Map [0..maxRpm] => [-90..+90] degrees
+  const fraction = clampedRpm / maxRpm; // 0..1
+  const rotationDeg = fraction * 180 - 90; // -90..+90
+
+  // Tick marks
+  const ticks = [0, 100, 200, 300, 400, 500, 600, 700, 800];
 
   return (
-    <div className="gauge-container">
+    <div className="gauge-container rpm-gauge">
+      {/* Title at top */}
       <div className="gauge-title">MOTOR RPM</div>
-      
-      {/* Render tick marks */}
+
+      {/* Tick marks around the arc */}
       <div className="gauge-ticks">
-        {ticks.map((tick) => {
-          // Map tick value to angle position around the gauge
-          const tickRotation = ((tick / maxRpm) * 180) - 90;
+        {ticks.map((tickValue) => {
+          const tickFraction = tickValue / maxRpm;
+          const tickRotation = tickFraction * 180 - 90;
           return (
-            <div 
-              key={tick} 
-              className="gauge-tick" 
+            <div
+              key={tickValue}
+              className="gauge-tick"
               style={{ transform: `rotate(${tickRotation}deg)` }}
             >
-              <span className="tick-label">{tick}</span>
+              <span className="tick-label">{tickValue}</span>
             </div>
           );
         })}
       </div>
 
+      {/* Gauge face (needle + center) */}
       <div className="gauge">
         <div
           className="gauge-needle"
-          style={{ transform: `rotate(${rotation}deg)` }}
+          style={{ transform: `rotate(${rotationDeg}deg)` }}
         ></div>
         <div className="gauge-center"></div>
       </div>
-      <div className="gauge-readout">{rpm} RPM</div>
+
+      {/* Numeric readout at bottom */}
+      <div className="gauge-readout-inside">{clampedRpm} RPM</div>
     </div>
   );
 }

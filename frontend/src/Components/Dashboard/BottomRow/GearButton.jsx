@@ -1,11 +1,9 @@
 // GearButton.jsx
 import React from "react";
-
+import { FaGear } from "react-icons/fa6";
 function GearButton() {
   return (
-    <button className="bottom-button" disabled>
-      Gear
-    </button>
+      <FaGear style={{fontSize: "3rem", color:"grey"}}/>
   );
 }
 

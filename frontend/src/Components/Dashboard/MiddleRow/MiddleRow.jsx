@@ -19,7 +19,7 @@ function MiddleRow({
   isCharging, // receive charging state
 }) {
   return (
-    <div className="middle-row-container">
+    <div className="middle-row-container" style={{display:"flex"}}>
       <GearRatioDisplay ratio={gearRatio} />
       <BatteryPercentDisplay percent={batteryPercent} isCharging={isCharging} />
       <BatteryTempDisplay temperature={batteryTemp} />

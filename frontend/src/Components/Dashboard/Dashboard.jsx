@@ -33,19 +33,20 @@ function Dashboard() {
   const [powerValue, setPowerValue] = useState(0); // powerLevel
   const [rpmValue, setRpmValue] = useState(0); // motorRPM
   const [gearRatio, setGearRatio] = useState("4:1"); // read-only
-  const [batteryPercent, setBatteryPercent] = useState(100);
+  const [batteryPercent, setBatteryPercent] = useState(0);
   const [batteryTemp, setBatteryTemp] = useState(25);
 
   // Slider & Charging
   const [sliderValue, setSliderValue] = useState(0); // motorSpeedSetting
   const [isCharging, setIsCharging] = useState(false);
+  const [overheated, setOverHeated] = useState(false);
 
   // **Refs for ETag and AbortController**
   const etagRef = useRef(null);
   const abortControllerRef = useRef(null);
 
   // **Polling Configuration**
-  const INITIAL_POLL_INTERVAL = 1000; // 3 seconds
+  const INITIAL_POLL_INTERVAL = 2000; // 3 seconds
   const MAX_POLL_INTERVAL = 10000; // 10 seconds
   const [pollInterval, setPollInterval] = useState(INITIAL_POLL_INTERVAL);
   const [attempt, setAttempt] = useState(0); // For exponential backoff
@@ -103,7 +104,7 @@ function Dashboard() {
             motorRPM = 0,
             powerLevel = 0,
             gearRatio = "4:1",
-            batteryPct = 100,
+            batteryPct = 0,
             batteryTemp = 25,
             motorSpeedSetting = 0,
             isCharging = false,
@@ -122,8 +123,9 @@ function Dashboard() {
             setIsCharging(isCharging);
 
             // Relational logic for status indicators
-            setMotorHighRpmActive(motorRPM > 3000); // Motor active if RPM > 3000
+            setMotorHighRpmActive(motorRPM >= 800); // Motor active if RPM > 3000
             setBatteryLowActive(batteryPct < 20);   // Battery low if < 20%
+            setOverHeated(batteryTemp > 100);
           }
         } else {
           // Handle HTTP errors
@@ -247,7 +249,7 @@ function Dashboard() {
       />
 
       {/* Bottom Row */}
-      <BottomRow isCharging={isCharging} onToggleCharging={handleChargingToggle} />
+      <BottomRow isCharging={isCharging} onToggleCharging={handleChargingToggle} isOverheating={overheated} />
     </div>
   );
 }

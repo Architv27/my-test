@@ -32,89 +32,100 @@ if (!getApps().length) {
 
 // Initialize Firestore
 const db = getFirestore();
-// The function that updates vehicle stats periodically
 async function updateVehicleStats() {
     try {
       const vehicleRef = db.collection("vehicles").doc("myVehicle");
-      const doc = await vehicleRef.get();
-      if (!doc.exists) {
+      const docSnap = await vehicleRef.get();
+      if (!docSnap.exists) {
         console.log("Document does not exist. No updates performed.");
         return;
       }
   
-      const data = doc.data();
-      const { motorSpeedSetting, isCharging, batteryPct, batteryTemp } = data;
+      const data = docSnap.data();
+      const {
+        motorSpeedSetting = 0,
+        isCharging = false,
+        batteryPct = 100,
+        batteryTemp = 25,
+      } = data;
   
-      // We'll define new values here
-      let newMotorRPM;
-      let newPowerLevel;
+      let newMotorRPM = 0;
+      let newPowerLevel = 0;
       let newBatteryPct = batteryPct;
       let newBatteryTemp = batteryTemp;
   
-      // Define a baseline ambient temperature to prevent unrealistic cooling
+      // We'll unify the max RPM at 800, full-power at +1000 kW, charging at -1000
+      // Ambient temperature
       const ambientTemp = 20;
   
       if (isCharging) {
-        // If charging, motor is off
+        // CHARGING => motor is off, negative power
         newMotorRPM = 0;
-        newPowerLevel = -50; // Negative indicates charging
-  
-        // Gradually increase battery percentage
-        newBatteryPct = Math.min(batteryPct + 0.5, 100);
-  
-        // For charging, you can cool or heat battery slightly; here we reduce it a bit
-        newBatteryTemp = batteryTemp - 0.5;
+        newPowerLevel = -1000; // indicates full charging
+        newBatteryPct = Math.min(newBatteryPct + 0.5, 100); // slow charge
+        // Gently cool battery, but never below ambient
+        newBatteryTemp = Math.max(newBatteryTemp - 0.5, ambientTemp);
       } else {
-        // Motor speed scales from 0 to 4 (motorSpeedSetting) => 0 to 4000 RPM
-        newMotorRPM = motorSpeedSetting * 1000;
-        // Power level scales proportionally to RPM for discharge
-        newPowerLevel = newMotorRPM * 0.1;
+        // Motor running => scale RPM up to 800 for motorSpeedSetting=4
+        newMotorRPM = (motorSpeedSetting / 4) * 800;
   
-        // Deplete battery based on motor speed
-        newBatteryPct = Math.max(batteryPct - (motorSpeedSetting * 0.1), 0);
+        // Scale power from 0..800 => 0..1000
+        // fraction = newMotorRPM / 800 => 0..1 => multiply by 1000 => 0..1000
+        newPowerLevel = (newMotorRPM / 800) * 1000;
+  
+        // Drain battery based on motorSpeedSetting
+        newBatteryPct = Math.max(newBatteryPct - (motorSpeedSetting * 0.1), 0);
   
         // Battery temperature logic
         if (motorSpeedSetting === 0) {
-          // Cool the battery when the motor is off
-          newBatteryTemp = batteryTemp - 1.0; 
-          // Prevent battery from dropping below ambient temperature
-          if (newBatteryTemp < ambientTemp) {
-            newBatteryTemp = ambientTemp;
-          }
+          // Motor off => cool down
+          newBatteryTemp = Math.max(newBatteryTemp - 1, ambientTemp);
         } else {
-          // Increase temperature more significantly at higher speeds
-          newBatteryTemp = batteryTemp + (motorSpeedSetting * 0.05);
+          // Heat up more with higher speed
+          newBatteryTemp = newBatteryTemp + (motorSpeedSetting * 0.5);
         }
       }
   
-      // Round temperature to keep it as an integer
-      newBatteryTemp = Math.round(newBatteryTemp);
-  
-      // Update Firestore with new stats
-      await vehicleRef.update({
-        motorRPM: newMotorRPM,
-        powerLevel: newPowerLevel,
-        batteryPct: newBatteryPct,
-        batteryTemp: newBatteryTemp,
-      });
-  
-      console.log("Vehicle stats updated:", {
-        motorSpeedSetting,
-        isCharging,
-        newBatteryPct,
-        newBatteryTemp,
-        newMotorRPM,
-        newPowerLevel
-      });
-    } catch (error) {
-      console.error("Error updating vehicle stats:", error);
+    // Round battery temp for a simpler integer
+    newBatteryTemp = parseInt(newBatteryTemp);
+
+    // ---- NEW LOGIC: If battery hits 0%, switch to charging mode automatically ----
+    if (newBatteryPct <= 0) {
+      newBatteryPct = 0;          // Force charging on
+      newMotorRPM = 0;            // Motor off
+      motorSpeedSetting = 0;      // Reset slider
+      // Optionally engage parking brake or other fields if needed
+      console.log("Battery at 0%. Forcing charging on...");
     }
+
+    // Save updated fields
+    await vehicleRef.update({
+      motorRPM: newMotorRPM,
+      powerLevel: newPowerLevel,
+      batteryPct: newBatteryPct,
+      batteryTemp: newBatteryTemp,
+      // If you want to persist the new motorSpeedSetting (0) and isCharging (true) in the doc:
+      motorSpeedSetting,
+      isCharging,
+      parkingBrake: isCharging ? true : data.parkingBrake, 
+    });
+
+    console.log("Vehicle stats updated:", {
+      motorSpeedSetting,
+      isCharging,
+      newMotorRPM,
+      newPowerLevel,
+      newBatteryPct,
+      newBatteryTemp,
+    });
+  } catch (error) {
+    console.error("Error updating vehicle stats:", error);
   }
-  
-  // Invoke the update function every 15 seconds
-  setInterval(updateVehicleStats, 15000);
-  
-  // Optional: Immediately run the function on startup
-  updateVehicleStats();
-  
+}
+
+// Interval to run every 15 seconds
+setInterval(updateVehicleStats, 15000);
+
+// Run once immediately on startup
+updateVehicleStats();  
 export { db };

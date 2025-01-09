@@ -7,13 +7,13 @@ import ViewMenuButton from "./ViewMenuButton";
 import ChargingButton from "./ChargingButton";
 import "../../../ComponentCSS/bottomRow.css";
 
-function BottomRow({ isCharging, onToggleCharging, isLoading }) {
+function BottomRow({ isCharging, onToggleCharging, isLoading, isOverheating }) {
   return (
     <div className="bottom-row-container">
       <div className="left-button-group">
         <GearButton />
         <MotorButton />
-        <BatteryTempButton />
+        <BatteryTempButton overheated = {isOverheating}/>
       </div>
 
       <ViewMenuButton />
