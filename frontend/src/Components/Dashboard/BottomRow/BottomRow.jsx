@@ -7,7 +7,7 @@ import ViewMenuButton from "./ViewMenuButton";
 import ChargingButton from "./ChargingButton";
 import "../../../ComponentCSS/bottomRow.css";
 
-function BottomRow({ isCharging, onToggleCharging }) {
+function BottomRow({ isCharging, onToggleCharging, isLoading }) {
   return (
     <div className="bottom-row-container">
       <div className="left-button-group">
@@ -18,7 +18,7 @@ function BottomRow({ isCharging, onToggleCharging }) {
 
       <ViewMenuButton />
 
-      <ChargingButton isCharging={isCharging} onToggle={onToggleCharging} />
+      <ChargingButton isCharging={isCharging} onToggle={onToggleCharging} isLoading={isLoading} />
     </div>
   );
 }

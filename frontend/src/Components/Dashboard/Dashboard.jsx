@@ -1,4 +1,3 @@
-// src/components/dashboard/Dashboard.js
 import React, { useState, useEffect, useRef } from "react";
 import "../../ComponentCSS/dashboard.css";
 
@@ -46,7 +45,7 @@ function Dashboard() {
   const abortControllerRef = useRef(null);
 
   // **Polling Configuration**
-  const INITIAL_POLL_INTERVAL = 1000; // 1 second
+  const INITIAL_POLL_INTERVAL = 1000; // 3 seconds
   const MAX_POLL_INTERVAL = 10000; // 10 seconds
   const [pollInterval, setPollInterval] = useState(INITIAL_POLL_INTERVAL);
   const [attempt, setAttempt] = useState(0); // For exponential backoff
@@ -73,7 +72,7 @@ function Dashboard() {
           headers["If-None-Match"] = etagRef.current;
         }
 
-        const response = await fetch("https://my-node-backend-blue.vercel.app/api/data", {
+        const response = await fetch("https://api-wv6xyu6ukq-uc.a.run.app/data", {
           method: "GET",
           headers: headers,
           signal: controller.signal,
@@ -110,7 +109,7 @@ function Dashboard() {
             isCharging = false,
           } = data;
 
-          // Update local states
+          // Update local states and compute relational indicator logic
           if (isMounted) {
             setParkingBrakeActive(parkingBrake);
             setCheckEngineActive(checkEngine);
@@ -122,9 +121,9 @@ function Dashboard() {
             setSliderValue(motorSpeedSetting);
             setIsCharging(isCharging);
 
-            // Compute Indicators
-            setMotorHighRpmActive(motorRPM > 3000); // Motor indicator if RPM > 3000
-            setBatteryLowActive(batteryPct < 20); // Battery Low if < 20%
+            // Relational logic for status indicators
+            setMotorHighRpmActive(motorRPM > 3000); // Motor active if RPM > 3000
+            setBatteryLowActive(batteryPct < 20);   // Battery low if < 20%
           }
         } else {
           // Handle HTTP errors
@@ -167,10 +166,11 @@ function Dashboard() {
   const debouncedPostMotorSpeed = useRef(
     debounce(async (val) => {
       try {
-        const response = await fetch("https://my-node-backend-blue.vercel.app/api/motor/speed", {
+        const response = await fetch("https://api-wv6xyu6ukq-uc.a.run.app/motor/speed", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ motorSpeed: val }),
+          credentials: "include"
         });
 
         if (!response.ok) {
@@ -179,35 +179,31 @@ function Dashboard() {
         }
 
         const result = await response.json();
-        console.log(result.message); // Optional: Log success message
+        console.log(result.message);
 
-        // Optionally, update motorRPM based on response if necessary
-        if (typeof result.motorRPM === "number") {
-          setRpmValue(result.motorRPM);
-          setMotorHighRpmActive(result.motorRPM > 3000);
-        }
+        // Optionally update RPM if returned by server (not required here since polling will update it)
       } catch (error) {
         console.error("Error updating motor speed:", error);
-        // Optional: Revert slider value or notify the user
       }
-    }, 500) // 500ms debounce
+    }, 500)
   ).current;
 
   // **Handler: Slider Change**
   const handleSliderChange = (val) => {
-    setSliderValue(val); // Immediate UI feedback
-    debouncedPostMotorSpeed(val); // Debounced POST request
+    setSliderValue(val);
+    debouncedPostMotorSpeed(val);
   };
 
   // **Handler: Charging Toggle**
   const handleChargingToggle = async () => {
     const nextState = !isCharging;
-    setIsCharging(nextState); // Immediate UI feedback
+    setIsCharging(nextState);
     try {
-      const response = await fetch("https://my-node-backend-blue.vercel.app/api/battery/charging", {
+      const response = await fetch("https://api-wv6xyu6ukq-uc.a.run.app/battery/charging", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ isCharging: nextState }),
+        body: JSON.stringify({ isCharging: nextState}),
+        credentials: "include"
       });
 
       if (!response.ok) {
@@ -216,11 +212,10 @@ function Dashboard() {
       }
 
       const result = await response.json();
-      console.log(result.message); // Optional: Log success message
+      console.log(result.message);
     } catch (error) {
       console.error("Error toggling charging:", error);
-      // Optional: Revert charging state or notify the user
-      setIsCharging(!nextState); // Revert state on error
+      setIsCharging(!nextState);
     }
   };
 
@@ -236,13 +231,11 @@ function Dashboard() {
 
       {/* Gauges */}
       <div className="center-gauges-row">
-        {/* Power Gauge: fluid animation in PowerGauge.jsx */}
         <PowerGauge value={powerValue} />
-        {/* RPM Gauge: fluid animation in RpmGauge.jsx */}
         <RpmGauge rpm={rpmValue} />
       </div>
 
-      {/* Middle Row: gear ratio, battery %, battery temp, motor RPM, slider */}
+      {/* Middle Row */}
       <MiddleRow
         gearRatio={gearRatio}
         batteryPercent={batteryPercent}
@@ -250,9 +243,10 @@ function Dashboard() {
         rpmValue={rpmValue}
         sliderValue={sliderValue}
         onSliderChange={handleSliderChange}
+        isCharging={isCharging}
       />
 
-      {/* Bottom Row: includes charging button */}
+      {/* Bottom Row */}
       <BottomRow isCharging={isCharging} onToggleCharging={handleChargingToggle} />
     </div>
   );

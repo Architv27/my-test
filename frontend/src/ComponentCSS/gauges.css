@@ -1,56 +1,138 @@
 /* src/components/dashboard/gauges/gauges.css */
 
+/* Base container for all gauges */
 .gauge-container {
-  display: flex;
+  position: relative;
+  display: inline-flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  width: 220px; /* approximate size from screenshot */
+  width: 220px;
   height: 220px;
-  position: relative;
-  margin: 0 1rem; /* space between the two gauges */
-  background: #2a2a2a; /* slightly darker interior circle */
   border-radius: 50%;
-  border: 6px solid #444; /* ring around the gauge */
+  border: 6px solid #444;
   box-shadow: inset 0 0 20px #111;
+  margin: 0 1rem;
+  overflow: hidden; /* so our reflection doesn't overflow */
+  background: radial-gradient(circle at center, #2a2a2a 60%, #1a1a1a 100%);
 }
 
+/* Make the gauge bigger specifically for PowerGauge */
+.gauge-container.power-gauge {
+  width: 300px;
+  height: 300px;
+}
+
+/* Subtle "glass" reflection overlay using a pseudo-element */
+.gauge-container.power-gauge::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  /* This gradient simulates a curved reflection at the top-right */
+  background: radial-gradient(
+    circle at 70% 30%,
+    rgba(255, 255, 255, 0.15),
+    transparent 60%
+  );
+  pointer-events: none; /* so it doesn't interfere with clicks */
+}
+
+/* Title near the top edge */
 .gauge-title {
   position: absolute;
   top: -1.5rem;
   font-size: 1rem;
   text-transform: uppercase;
   letter-spacing: 1px;
+  color: #fff;
+  text-shadow: 0 0 3px #000;
 }
 
-/* The numeric readout at the bottom center of the gauge */
-.gauge-readout {
+/* Ticks container */
+.gauge-ticks {
   position: absolute;
-  bottom: -2rem;
-  font-size: 1.2rem;
-  font-weight: 600;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
 }
 
-/* Needle example */
+/* Each tick element rotates around the center */
+.gauge-tick {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  transform-origin: 50% 50%;
+}
+
+/* The tick line */
+.gauge-tick::before {
+  content: "";
+  position: absolute;
+  top: 10px;   /* how far from the top edge */
+  left: 50%;
+  width: 2px;
+  height: 12px;
+  background: #fff;
+  transform: translateX(-50%);
+  box-shadow: 0 0 2px rgba(0,0,0,0.5);
+}
+
+/* Numeric label next to each tick */
+.tick-label {
+  position: absolute;
+  top: 25px; /* slightly below the tick mark */
+  left: 50%;
+  transform: translateX(-50%);
+  color: #fff;
+  font-size: 0.7rem;
+  text-shadow: 0 0 2px #000;
+}
+
+/* The gauge "inner" container for needle + center + readout */
+.gauge {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+/* The needle itself */
 .gauge-needle {
   position: absolute;
   bottom: 50%;
   left: 50%;
-  width: 2px;
-  height: 40%;
-  background: #ff2c2c; /* red needle or white/yellow if you prefer */
+  width: 4px;
+  height: 45%;
+  background: linear-gradient(to top, #ff2c2c, #990000);
   transform-origin: bottom center;
   transition: transform 0.3s ease-out;
+  box-shadow: 0 0 5px rgba(255, 0, 0, 0.7);
 }
 
-/* Optional center hub for the needle */
+/* The center cap */
 .gauge-center {
   position: absolute;
-  width: 12px;
-  height: 12px;
-  background: #999;
-  border-radius: 50%;
   bottom: 50%;
   left: 50%;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
   transform: translate(-50%, 50%);
+  background: radial-gradient(circle, #fff 0%, #bbb 70%);
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+}
+
+/* Numeric readout inside the gauge */
+.gauge-readout-inside {
+  position: absolute;
+  bottom: 10px;
+  width: 100%;
+  text-align: center;
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #fff;
+  text-shadow: 0 0 2px #000;
 }

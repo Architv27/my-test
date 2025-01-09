@@ -1,11 +1,18 @@
 // src/components/dashboard/bottomRow/ChargingButton.jsx
 import React from "react";
+import { GiCharging } from "react-icons/gi";  // Import the GiCharging icon
 
-function ChargingButton({ isCharging, onToggle }) {
+function ChargingButton({ isCharging, onToggle, isLoading }) {
   return (
-    <button className="bottom-button" onClick={onToggle}>
-      {isCharging ? "Stop Charging" : "Start Charging"}
-    </button>
+      <GiCharging 
+        onClick={onToggle} 
+        disabled={isLoading}
+        title={isCharging ? "Stop Charging" : "Start Charging"}  // Accessible tooltip
+        style={{ 
+          color: isCharging ? "green" : "grey",
+          fontSize: "4rem"  // Adjust size as needed
+        }} 
+      />
   );
 }
 

@@ -15,15 +15,20 @@ function MiddleRow({
   batteryTemp,
   rpmValue,
   sliderValue,
-  onSliderChange
+  onSliderChange,
+  isCharging, // receive charging state
 }) {
   return (
     <div className="middle-row-container">
       <GearRatioDisplay ratio={gearRatio} />
-      <BatteryPercentDisplay percent={batteryPercent} />
+      <BatteryPercentDisplay percent={batteryPercent} isCharging={isCharging} />
       <BatteryTempDisplay temperature={batteryTemp} />
       <MotorRpmDisplay rpm={rpmValue} />
-      <MotorSpeedSlider value={sliderValue} onChange={onSliderChange} />
+      <MotorSpeedSlider 
+        value={sliderValue} 
+        onChange={onSliderChange} 
+        isCharging={isCharging}
+      />
     </div>
   );
 }
