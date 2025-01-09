@@ -21,7 +21,7 @@
   overflow: hidden; /* clip reflection overlay */
 }
 
-/* Optional: specialized class for each gauge if needed */
+/* You can have specialized classes for each gauge if needed */
 .gauge-container.rpm-gauge {
   /* Any RPM-specific overrides */
 }
@@ -49,7 +49,7 @@
   );
 }
 
-/* Title near the top edge (optional; can remove if not needed) */
+/* Title near the top edge (optional) */
 .gauge-title {
   position: absolute;
   top: -1.5rem;
@@ -107,7 +107,7 @@
   height: 100%;
 }
 
-/* Needle with metallic gradient */
+/* Needle with a metallic gradient and smooth animation */
 .gauge-needle {
   position: absolute;
   bottom: 50%;         /* pivot at the bottom center */
@@ -115,7 +115,13 @@
   width: 6px;          /* needle width */
   height: 45%;         /* length from center to outer edge */
   transform-origin: bottom center;
-  transition: transform 0.4s ease-out;
+  
+  /* The magic: more time + smoother easing for fluid rotation */
+  transition: transform 0.7s cubic-bezier(0.77, 0, 0.175, 1); 
+  /* 
+     Alternative simpler easing: 
+       transition: transform 0.6s ease-in-out;
+  */
 
   background: linear-gradient(
     to top,
@@ -127,6 +133,9 @@
   box-shadow:
     0 0 2px rgba(255, 255, 255, 0.3),
     inset 0 0 4px rgba(0, 0, 0, 0.4);
+
+  /* Helps some browsers optimize for transform animations */
+  will-change: transform;
 }
 
 /* Center pivot */
