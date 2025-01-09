@@ -12,11 +12,16 @@ function BottomRow({ isCharging, onToggleCharging, isLoading, isOverheating }) {
     <div className="bottom-row-container">
       <div className="left-button-group">
         <GearButton />
+        <div style={{marginbottom:"30px"}}>
         <MotorButton />
+        </div>
         <BatteryTempButton overheated = {isOverheating}/>
       </div>
+      <div style={{paddingRight:"100px"}}>
+        <ViewMenuButton />
 
-      <ViewMenuButton />
+      </div>
+
 
       <ChargingButton isCharging={isCharging} onToggle={onToggleCharging} isLoading={isLoading} />
     </div>

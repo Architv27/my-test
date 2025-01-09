@@ -46,7 +46,7 @@
   .slider-label {
     font-size: 0.8rem;
     text-transform: uppercase;
-    margin-bottom: 0.2rem;
+    margin-bottom: 0rem;
   }
   
   #motorSpeed[type="range"] {

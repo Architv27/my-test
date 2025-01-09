@@ -4,7 +4,9 @@ import { CgMenuGridR } from "react-icons/cg";
 
 function MotorButton() {
   return (
-    <CgMenuGridR style={{fontSize:"4rem", paddingRight:"110px"}} />
+    <button style={{fontSize:"4rem", paddingRight:"5px", background:"darkgray"}}>
+      <CgMenuGridR style={{fontSize:"4rem", paddingLeft:"5px" ,paddingRight:"5px", paddingTop:"11px", color:"white"}} />
+    </button>
   );
 }
 
